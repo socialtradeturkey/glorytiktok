@@ -1,88 +1,42 @@
 import { StrictMode, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Check, ChevronDown, Clock3, Heart, Play, ShieldCheck, Sparkles, ThumbsUp, UserRound, Video } from 'lucide-react';
+import { Check, ChevronDown, Clock3, FileCheck2, Heart, LayoutDashboard, Play, Plus, ShieldCheck, Sparkles, ThumbsUp, UserRound, Video, Wallet, X } from 'lucide-react';
 import './styles.css';
 
-type Task = {
-  id: number;
-  title: string;
-  creator: string;
-  description: string;
-  videoId: string;
-  points: number;
-  duration: number;
-  audience: string;
-  color: string;
-};
-
-const tasks: Task[] = [
-  { id: 1, title: 'Bilim: İnsanlar neden av eti yemez?', creator: 'Tp Dossier', description: 'Videoyu keşfet, gerçek bir izleyici olarak katkını bırak.', videoId: 'J7nGqQJ8K4s', points: 100, duration: 30, audience: 'Yeni izleyiciler', color: '#ed7b42' },
-  { id: 2, title: 'Algoritmanın arkasındaki gerçek', creator: 'Kayıp Gerçekler', description: 'İzle, düşünceni bırak ve kanalı keşfet.', videoId: 'dQw4w9WgXcQ', points: 150, duration: 30, audience: 'Teknoloji meraklıları', color: '#5576d9' },
-  { id: 3, title: 'Gündelik hayatın küçük bilimi', creator: 'Merak Atölyesi', description: 'Manuel adımları tamamla; kanıt zincirini birlikte oluşturalım.', videoId: 'M7lc1UVf-VE', points: 80, duration: 30, audience: 'Bilim severler', color: '#8b64cf' },
+type Task = { id:number; title:string; creator:string; description:string; videoId:string; points:number; duration:number; audience:string; color:string };
+const tasks:Task[] = [
+  { id:1, title:'Bilim: İnsanlar neden av eti yemez?', creator:'Tp Dossier', description:'Videoyu keşfet, gerçek bir izleyici olarak katkını bırak.', videoId:'J7nGqQJ8K4s', points:100, duration:30, audience:'Yeni izleyiciler', color:'#ed7b42' },
+  { id:2, title:'Algoritmanın arkasındaki gerçek', creator:'Kayıp Gerçekler', description:'İzle, düşünceni bırak ve kanalı keşfet.', videoId:'dQw4w9WgXcQ', points:150, duration:30, audience:'Teknoloji meraklıları', color:'#5576d9' },
+  { id:3, title:'Gündelik hayatın küçük bilimi', creator:'Merak Atölyesi', description:'Manuel adımları tamamla; kanıt zincirini birlikte oluşturalım.', videoId:'M7lc1UVf-VE', points:80, duration:30, audience:'Bilim severler', color:'#8b64cf' },
 ];
+type Screen = 'feed'|'admin'|'wallet'|'advertiser';
 
-function App() {
-  const [activeTask, setActiveTask] = useState<number | null>(null);
-  const [liked, setLiked] = useState(false);
-  const [subscribed, setSubscribed] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const [watched, setWatched] = useState(0);
-  const [code, setCode] = useState<string | null>(null);
-  const [codeInput, setCodeInput] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [toast, setToast] = useState('');
-
-  const task = tasks.find(item => item.id === activeTask) ?? null;
-  const readyForCode = Boolean(task && watched >= task.duration && liked && subscribed);
-  const canSubmit = readyForCode && codeInput === code;
-
-  useEffect(() => {
-    if (!playing || !task || submitted) return;
-    const interval = window.setInterval(() => {
-      setWatched(value => {
-        const next = Math.min(task.duration, value + 1);
-        if (next >= task.duration && liked && subscribed) setCode('' + Math.floor(100000 + Math.random() * 899999));
-        return next;
-      });
-    }, 1000);
-    return () => window.clearInterval(interval);
-  }, [playing, task, liked, subscribed, submitted]);
-
-  useEffect(() => {
-    if (!toast) return;
-    const timeout = window.setTimeout(() => setToast(''), 3200);
-    return () => window.clearTimeout(timeout);
-  }, [toast]);
-
-  const startTask = (id: number) => {
-    setActiveTask(id); setLiked(false); setSubscribed(false); setPlaying(false); setWatched(0); setCode(null); setCodeInput(''); setSubmitted(false);
-  };
-
-  const closeTask = () => setActiveTask(null);
-
-  const submit = () => {
-    if (!canSubmit) return;
-    setSubmitted(true); setPlaying(false); setToast('Görev tamamlandı — admin onayı bekleniyor.');
-  };
-
-  return <div className="app-shell">
-    <header className="topbar"><div className="brand"><span className="brand-mark">g</span><span>glory<span className="brand-accent">tiktok</span></span></div><div className="topbar-center"><span className="live-dot" /> Gerçek görev akışı</div><div className="profile"><span>1,240 puan</span><span className="avatar"><UserRound size={16} /></span></div></header>
-    <main className="feed" aria-label="Görev akışı">
-      <section className="intro"><div><p className="eyebrow"><Sparkles size={14} /> BUGÜNÜN AKIŞI</p><h1>İzle. Etkileşime geç.<br /><em>Gerçek katkı bırak.</em></h1><p className="intro-copy">Her görevde işlem kullanıcıya aittir. Biz yalnızca izleme ve işlem kanıtını güvenle toplarız.</p></div><div className="trust-chip"><ShieldCheck size={18} /><div><strong>İnsan destekli</strong><span>Otomatik bot yok</span></div></div></section>
-      <div className="feed-hint"><span>Görevleri keşfet</span><ChevronDown size={16} /></div>
-      <div className="task-stream">{tasks.map(item => <article className="task-card" key={item.id} style={{ '--poster': item.color } as CSSProperties}>
-        <div className="card-poster"><div className="poster-gradient" /><div className="poster-top"><span className="creator-pill"><span className="creator-avatar">{item.creator[0]}</span>{item.creator}</span><span className="points">+{item.points} puan</span></div><div className="poster-play"><Play size={22} fill="currentColor" /></div><div className="poster-bottom"><span><Clock3 size={14} /> {item.duration} sn izleme</span><span className="organic"><ShieldCheck size={14} /> Organik katılım</span></div></div>
-        <div className="card-info"><div><p className="card-label">YOUTUBE GÖREVİ</p><h2>{item.title}</h2><p>{item.description}</p></div><button className="start-button" onClick={() => startTask(item.id)}>Görevi başlat <span>↗</span></button></div>
-      </article>)}</div>
-    </main>
-    {activeTask && task && <div className="modal-backdrop" role="dialog" aria-modal="true"><div className="task-modal"><button className="close" onClick={closeTask} aria-label="Kapat">×</button><div className="modal-head"><div><p className="eyebrow">AKTİF GÖREV · {task.creator}</p><h2>{task.title}</h2></div><span className="modal-points">+{task.points}</span></div><div className="player-wrap"><iframe title={task.title} src={`https://www.youtube.com/embed/${task.videoId}?rel=0&modestbranding=1`} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen /><button className={`player-action ${playing ? 'is-playing' : ''}`} onClick={() => setPlaying(value => !value)}><Play size={16} fill="currentColor" /> {playing ? 'Video oynuyor' : 'İzlemeyi başlat'}</button>{code && <div className="code-overlay"><p>GÖREV DOĞRULAMA KODU</p><strong>{code}</strong><span>Kodu aşağıdaki alana gir</span></div>}</div><div className="progress-line"><span style={{ width: `${Math.round((watched / task.duration) * 100)}%` }} /></div><div className="step-row"><Step number="1" label="Videoyu beğen" done={liked} disabled={!playing || submitted} onClick={() => setLiked(true)} icon={<ThumbsUp size={16} />} /><Step number="2" label="Kanala abone ol" done={subscribed} disabled={!liked || submitted} onClick={() => setSubscribed(true)} icon={<Video size={16} />} /><Step number="3" label={`${task.duration} sn izle`} done={watched >= task.duration} disabled={!liked || !subscribed || submitted} onClick={() => setPlaying(true)} icon={<Clock3 size={16} />} /></div><div className="verify-panel"><div className="verify-copy"><ShieldCheck size={19} /><div><strong>{submitted ? 'Görev admin onayına gönderildi' : code ? 'Kod ekranda — son adım' : 'Kanıt zinciri hazırlanıyor'}</strong><span>{submitted ? 'Puan onaydan sonra hesabına eklenir.' : code ? 'Video üzerindeki kodu forma girerek tamamla.' : liked && subscribed ? 'Video oynarken gerçek izleme süren kaydedilir.' : 'Adımları sırayla tamamla; her işlem senin hesabından yapılır.'}</span></div></div>{!submitted && <div className="code-form"><input value={codeInput} onChange={event => setCodeInput(event.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Secret Code" inputMode="numeric" disabled={!code} /><button onClick={submit} disabled={!canSubmit}>Görevi tamamla</button></div>}</div></div></div>}
-    {toast && <div className="toast"><Check size={18} />{toast}</div>}
-    <nav className="bottom-nav"><button className="active"><Sparkles size={18} />Akış</button><button><Heart size={18} />Görevler</button><button><ShieldCheck size={18} />Kanıtlar</button><button><UserRound size={18} />Profil</button></nav>
-  </div>;
+function App(){
+  const [screen,setScreen]=useState<Screen>('feed'); const [activeTask,setActiveTask]=useState<number|null>(null); const [liked,setLiked]=useState(false); const [subscribed,setSubscribed]=useState(false); const [playing,setPlaying]=useState(false); const [watched,setWatched]=useState(0); const [code,setCode]=useState<string|null>(null); const [codeInput,setCodeInput]=useState(''); const [submitted,setSubmitted]=useState(false); const [toast,setToast]=useState('');
+  const task=tasks.find(item=>item.id===activeTask)??null; const ready=Boolean(task&&watched>=task.duration&&liked&&subscribed); const canSubmit=ready&&codeInput===code;
+  useEffect(()=>{if(!playing||!task||submitted)return; const timer=window.setInterval(()=>setWatched(value=>{const next=Math.min(task.duration,value+1); if(next>=task.duration&&liked&&subscribed&&!code)setCode(String(Math.floor(100000+Math.random()*899999))); return next}),1000);return()=>window.clearInterval(timer)},[playing,task,liked,subscribed,submitted,code]);
+  useEffect(()=>{if(!toast)return;const timer=window.setTimeout(()=>setToast(''),3200);return()=>window.clearTimeout(timer)},[toast]);
+  const startTask=(id:number)=>{setActiveTask(id);setLiked(false);setSubscribed(false);setPlaying(false);setWatched(0);setCode(null);setCodeInput('');setSubmitted(false)};
+  const submit=()=>{if(!canSubmit)return;setSubmitted(true);setPlaying(false);setToast('Görev tamamlandı — admin onayına gönderildi.')};
+  return <div className="app-shell"><header className="topbar"><button className="brand" onClick={()=>setScreen('feed')}><span className="brand-mark">g</span><span>glory<span className="brand-accent">tiktok</span></span></button><div className="topbar-center"><span className="live-dot"/> Gerçek görev akışı</div><div className="profile"><span>1,240 puan</span><span className="avatar"><UserRound size={16}/></span></div></header>
+    {screen==='feed'&&<Feed onStart={startTask}/>} {screen==='admin'&&<Admin onToast={setToast}/>} {screen==='wallet'&&<WalletPage/>} {screen==='advertiser'&&<Advertiser onToast={setToast}/>} 
+    {activeTask&&task&&<TaskModal task={task} liked={liked} setLiked={setLiked} subscribed={subscribed} setSubscribed={setSubscribed} playing={playing} setPlaying={setPlaying} watched={watched} code={code} codeInput={codeInput} setCodeInput={setCodeInput} submitted={submitted} canSubmit={canSubmit} onSubmit={submit} onClose={()=>setActiveTask(null)}/>} {toast&&<div className="toast"><Check size={18}/>{toast}</div>}
+    <nav className="bottom-nav"><NavButton active={screen==='feed'} onClick={()=>setScreen('feed')} icon={<Sparkles size={18}/>} label="Akış"/><NavButton active={screen==='admin'} onClick={()=>setScreen('admin')} icon={<LayoutDashboard size={18}/>} label="Admin"/><NavButton active={screen==='wallet'} onClick={()=>setScreen('wallet')} icon={<Wallet size={18}/>} label="Cüzdan"/><NavButton active={screen==='advertiser'} onClick={()=>setScreen('advertiser')} icon={<Plus size={18}/>} label="Kampanya"/></nav>
+  </div>
 }
 
-function Step({ number, label, done, disabled, onClick, icon }: { number: string; label: string; done: boolean; disabled: boolean; onClick: () => void; icon: ReactNode }) {
-  return <button className={`step ${done ? 'done' : ''}`} disabled={disabled} onClick={onClick}><span className="step-num">{done ? <Check size={13} /> : number}</span><span className="step-icon">{icon}</span><span>{label}</span>{done && <small>tamam</small>}</button>;
-}
+function NavButton({active,onClick,icon,label}:{active:boolean;onClick:()=>void;icon:ReactNode;label:string}){return <button className={active?'active':''} onClick={onClick}>{icon}{label}</button>}
+function Feed({onStart}:{onStart:(id:number)=>void}){return <main className="feed"><section className="intro"><div><p className="eyebrow"><Sparkles size={14}/> BUGÜNÜN AKIŞI</p><h1>İzle. Etkileşime geç.<br/><em>Gerçek katkı bırak.</em></h1><p className="intro-copy">Her görevde işlem kullanıcıya aittir. Biz yalnızca izleme ve işlem kanıtını güvenle toplarız.</p></div><div className="trust-chip"><ShieldCheck size={18}/><div><strong>İnsan destekli</strong><span>Otomatik bot yok</span></div></div></section><div className="feed-hint"><span>Görevleri keşfet</span><ChevronDown size={16}/></div><div className="task-stream">{tasks.map(item=><article className="task-card" key={item.id} style={{'--poster':item.color} as CSSProperties}><div className="card-poster"><div className="poster-gradient"/><div className="poster-top"><span className="creator-pill"><span className="creator-avatar">{item.creator[0]}</span>{item.creator}</span><span className="points">+{item.points} puan</span></div><div className="poster-play"><Play size={22} fill="currentColor"/></div><div className="poster-bottom"><span><Clock3 size={14}/> {item.duration} sn izleme</span><span className="organic"><ShieldCheck size={14}/> Organik katılım</span></div></div><div className="card-info"><div><p className="card-label">YOUTUBE GÖREVİ</p><h2>{item.title}</h2><p>{item.description}</p></div><button className="start-button" onClick={()=>onStart(item.id)}>Görevi başlat <span>↗</span></button></div></article>)}</div></main>}
 
-createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>);
+function TaskModal({task,liked,setLiked,subscribed,setSubscribed,playing,setPlaying,watched,code,codeInput,setCodeInput,submitted,canSubmit,onSubmit,onClose}:{task:Task;liked:boolean;setLiked:(v:boolean)=>void;subscribed:boolean;setSubscribed:(v:boolean)=>void;playing:boolean;setPlaying:(v:boolean)=>void;watched:number;code:string|null;codeInput:string;setCodeInput:(v:string)=>void;submitted:boolean;canSubmit:boolean;onSubmit:()=>void;onClose:()=>void}){return <div className="modal-backdrop"><div className="task-modal"><button className="close" onClick={onClose}><X size={18}/></button><div className="modal-head"><div><p className="eyebrow">AKTİF GÖREV · {task.creator}</p><h2>{task.title}</h2></div><span className="modal-points">+{task.points}</span></div><div className="player-wrap"><iframe title={task.title} src={`https://www.youtube.com/embed/${task.videoId}?rel=0&modestbranding=1`} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen/><button className={`player-action ${playing?'is-playing':''}`} onClick={()=>setPlaying(!playing)}><Play size={16} fill="currentColor"/>{playing?'Video oynuyor':'İzlemeyi başlat'}</button>{code&&<div className="code-overlay"><p>GÖREV DOĞRULAMA KODU</p><strong>{code}</strong><span>Kodu aşağıdaki alana gir</span></div>}</div><div className="progress-line"><span style={{width:`${Math.round(watched/task.duration*100)}%`}}/></div><div className="step-row"><Step number="1" label="Videoyu beğen" done={liked} disabled={!playing||submitted} onClick={()=>setLiked(true)} icon={<ThumbsUp size={16}/>}/><Step number="2" label="Kanala abone ol" done={subscribed} disabled={!liked||submitted} onClick={()=>setSubscribed(true)} icon={<Video size={16}/>}/><Step number="3" label={`${task.duration} sn izle`} done={watched>=task.duration} disabled={!liked||!subscribed||submitted} onClick={()=>setPlaying(true)} icon={<Clock3 size={16}/>}/></div><div className="verify-panel"><div className="verify-copy"><ShieldCheck size={19}/><div><strong>{submitted?'Görev admin onayına gönderildi':code?'Kod ekranda — son adım':'Kanıt zinciri hazırlanıyor'}</strong><span>{submitted?'Puan onaydan sonra hesabına eklenir.':code?'Video üzerindeki kodu forma girerek tamamla.':'Adımları sırayla tamamla; her işlem senin hesabından yapılır.'}</span></div></div>{!submitted&&<div className="code-form"><input value={codeInput} onChange={e=>setCodeInput(e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="Secret Code" inputMode="numeric" disabled={!code}/><button onClick={onSubmit} disabled={!canSubmit}>Görevi tamamla</button></div>}</div></div></div>}
+function Step({number,label,done,disabled,onClick,icon}:{number:string;label:string;done:boolean;disabled:boolean;onClick:()=>void;icon:ReactNode}){return <button className={`step ${done?'done':''}`} disabled={disabled} onClick={onClick}><span className="step-num">{done?<Check size={13}/>:number}</span><span>{label}</span>{done&&<small>tamam</small>}</button>}
+
+function Admin({onToast}:{onToast:(v:string)=>void}){const [items,setItems]=useState([{id:1,user:'Ayşe Yılmaz',task:'Algoritmanın arkasındaki gerçek',points:150,time:'2 dk önce',status:'İnceleniyor'},{id:2,user:'Murat Kaya',task:'Bilim: İnsanlar neden av eti yemez?',points:100,time:'18 dk önce',status:'İnceleniyor'},{id:3,user:'Deniz Acar',task:'Gündelik hayatın küçük bilimi',points:80,time:'1 saat önce',status:'Onaylandı'}]);const decide=(id:number,status:string)=>{setItems(value=>value.map(item=>item.id===id?{...item,status}:item));onToast(status==='Onaylandı'?'Kanıt onaylandı, puan kullanıcı cüzdanına aktarıldı.':'Kanıt reddedildi.')};return <main className="dashboard"><PageTitle eyebrow="YÖNETİM MERKEZİ" title="Kanıt inceleme" sub="Kullanıcıların gönderdiği görev kanıtlarını tek ekranda inceleyin."/><div className="metric-grid"><Metric label="Bekleyen kanıt" value={String(items.filter(i=>i.status==='İnceleniyor').length)} accent="lime"/><Metric label="Bugün onaylanan" value="24"/><Metric label="Dağıtılan puan" value="3,840"/></div><section className="panel"><div className="panel-head"><div><h3>Görev gönderimleri</h3><p>Ekran görüntüsü, izleme süresi ve sosyal işlem kanıtları.</p></div><span className="filter-pill">Tümü · 3</span></div><div className="review-list">{items.map(item=><div className="review-row" key={item.id}><div className="review-avatar">{item.user[0]}</div><div className="review-main"><strong>{item.user}</strong><span>{item.task} · +{item.points} puan</span></div><div className="evidence"><FileCheck2 size={15}/> 4 kanıt <small>{item.time}</small></div><span className={`status ${item.status==='Onaylandı'?'approved':''}`}>{item.status}</span>{item.status==='İnceleniyor'&&<div className="review-actions"><button className="approve" onClick={()=>decide(item.id,'Onaylandı')}><Check size={14}/> Onayla</button><button className="reject" onClick={()=>decide(item.id,'Reddedildi')}><X size={14}/> Reddet</button></div>}</div>)}</div></section></main>}
+function Metric({label,value,accent}:{label:string;value:string;accent?:string}){return <div className="metric"><span>{label}</span><strong className={accent||''}>{value}</strong><small>Son 24 saat <b>↗ 12%</b></small></div>}
+function PageTitle({eyebrow,title,sub}:{eyebrow:string;title:string;sub:string}){return <section className="page-title"><p className="eyebrow"><ShieldCheck size={14}/> {eyebrow}</p><h1>{title}</h1><p>{sub}</p></section>}
+
+function WalletPage(){return <main className="dashboard"><PageTitle eyebrow="KULLANICI HESABI" title="Cüzdanım" sub="Kazançlarını, görev geçmişini ve doğrulama itibarını tek yerde gör."/><div className="wallet-hero"><div><span>KULLANILABILIR BAKİYE</span><strong>1,240 <small>puan</small></strong><button className="light-button">Ödülleri keşfet ↗</button></div><div className="wallet-orb"><Wallet size={32}/></div></div><div className="metric-grid wallet-metrics"><Metric label="Toplam kazanım" value="2,840 puan"/><Metric label="Tamamlanan görev" value="28"/><Metric label="Onay oranı" value="96%" accent="lime"/></div><section className="panel"><div className="panel-head"><div><h3>Son görevler</h3><p>Onaylanan ve bekleyen görevlerin.</p></div><span className="filter-pill">Bu ay</span></div><div className="history"><HistoryRow icon={<Check size={16}/>} title="Algoritmanın arkasındaki gerçek" meta="Admin onayladı · Bugün" amount="+150" state="Onaylandı"/><HistoryRow icon={<Clock3 size={16}/>} title="Gündelik hayatın küçük bilimi" meta="İnceleniyor · Dün" amount="+80" state="Bekliyor"/><HistoryRow icon={<Check size={16}/>} title="Bilim: İnsanlar neden av eti yemez?" meta="Admin onayladı · 28 Ağu" amount="+100" state="Onaylandı"/></div></section></main>}
+function HistoryRow({icon,title,meta,amount,state}:{icon:ReactNode;title:string;meta:string;amount:string;state:string}){return <div className="history-row"><span className="history-icon">{icon}</span><div><strong>{title}</strong><span>{meta}</span></div><b>{amount} puan</b><small className={state==='Onaylandı'?'good':''}>{state}</small></div>}
+
+function Advertiser({onToast}:{onToast:(v:string)=>void}){const [show,setShow]=useState(false);const [campaigns,setCampaigns]=useState([{name:'Bilim serisi lansmanı',video:'Why humans never eat predator meat?',status:'Yayında',progress:'64 / 100',budget:'6,400 puan'},{name:'Teknoloji kanal büyümesi',video:'Algoritmanın arkasındaki gerçek',status:'Taslak',progress:'0 / 150',budget:'15,000 puan'}]);const create=()=>{setCampaigns(value=>[{name:'Yeni YouTube kampanyası',video:'Yeni görev talebi',status:'Taslak',progress:'0 / 50',budget:'5,000 puan'},...value]);setShow(false);onToast('Kampanya taslağı oluşturuldu.')};return <main className="dashboard"><PageTitle eyebrow="İÇERİK ÜRETİCİSİ" title="Kampanyalarım" sub="Kanalın için gerçek kullanıcı katılımına dayalı görev kampanyaları oluştur."/><div className="advertiser-actions"><div className="balance-card"><span>KAMPANYA BAKİYESİ</span><strong>42,800 <small>puan</small></strong><span className="muted">Bütçe kontrolü aktif</span></div><button className="primary-button" onClick={()=>setShow(true)}><Plus size={17}/> Yeni kampanya</button></div><section className="campaign-grid">{campaigns.map((campaign,index)=><article className="campaign-card" key={index}><div className="campaign-cover"><span className="creator-pill"><span className="creator-avatar">{index?'T':'B'}</span> YouTube</span><span className={`status ${campaign.status==='Yayında'?'approved':''}`}>{campaign.status}</span><div className="campaign-cover-icon"><Video size={28}/></div></div><div className="campaign-body"><p className="card-label">VİDEO KAMPANYASI</p><h3>{campaign.name}</h3><p>{campaign.video}</p><div className="campaign-stats"><span><UserRound size={14}/> {campaign.progress} katılım</span><span>{campaign.budget}</span></div><div className="campaign-progress"><span style={{width:index?'0%':'64%'}}/></div><button className="outline-button">Kampanyayı yönet ↗</button></div></article>)}</section>{show&&<div className="inline-form"><div className="panel-head"><div><h3>Yeni kampanya talebi</h3><p>Görev yayınlanmadan önce bütçe ve hedefleri belirleyin.</p></div><button className="close-small" onClick={()=>setShow(false)}><X size={16}/></button></div><div className="form-grid"><label>Kampanya adı<input placeholder="Örn. Yeni video lansmanı"/></label><label>YouTube video URL<input placeholder="https://youtube.com/watch?v=..."/></label><label>Hedef katılım<input type="number" placeholder="100"/></label><label>Görev başı puan<input type="number" placeholder="100"/></label></div><button className="primary-button" onClick={create}>Taslak oluştur <Plus size={16}/></button></div>}</main>}
+createRoot(document.getElementById('root')!).render(<StrictMode><App/></StrictMode>);
