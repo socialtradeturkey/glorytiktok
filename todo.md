@@ -31,3 +31,15 @@
 ## Güvenlik notu
 
 Admin parolası source code, `todo.md` veya GitHub’a yazılmamalıdır. Static prototipte giriş alanı `VITE_ADMIN_EMAIL` ve `VITE_ADMIN_PASSWORD` environment değişkenlerini kullanır; gerçek production kullanımı için backend doğrulaması zorunludur.
+
+## Supabase Auth entegrasyonu
+
+- [x] `@supabase/supabase-js` eklendi.
+- [x] Supabase public client modülü oluşturuldu.
+- [x] Google OAuth olmadan e-posta/şifre kayıt ve giriş formu eklendi.
+- [x] Supabase session dinleme ve oturum yoksa auth ekranı gösterme eklendi.
+- [x] Admin paneli yetkili `VITE_ADMIN_EMAIL` ile Supabase oturumunu kontrol edecek şekilde bağlandı.
+- [x] Supabase URL ve publishable key yalnız environment değişkenleri üzerinden okunuyor.
+- [ ] Supabase Dashboard’da Email provider’ı etkinleştir.
+- [ ] Supabase’de admin hesabını oluştur ve `VITE_ADMIN_EMAIL` değerini ayarla.
+- [ ] Üretim için `profiles.role` + RLS ile server-side admin rol kontrolü ekle.
