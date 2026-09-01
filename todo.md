@@ -29,11 +29,11 @@
 - [x] Admin onayında ledger ve profil bakiyesini atomik güncelleyen `approve_submission()` RPC’sini ekle.
 - [x] Reklamveren kampanyaları ve bütçe rezervasyonu için tablo/RLS/istemci yardımcılarını ekle.
 - [x] Reklamveren kampanya formunu doğrulama ve bütçe hesabıyla Supabase insert akışına bağla.
-- [ ] YouTube OAuth/API kanıtlarını görev submission akışına bağla; OAuth kimlik bilgileri ve doğrulama endpoint’i gerekiyor.
-- [ ] Gerçek heartbeat ve tek kullanımlık Secret Code endpoint’i ekle; Edge Function veya server endpoint’i gerekiyor.
+- [x] YouTube OAuth/API kanıtlarını görev submission akışına bağla; `youtube-verify` Edge Function beğeni ve aboneliği YouTube Data API üzerinden kontrol ediyor.
+- [x] Gerçek heartbeat ve tek kullanımlık Secret Code endpoint’i ekle; `heartbeat` Edge Function nonce, süre ve tek kullanımlık kod doğrulamasını yönetiyor.
 
 ## Üretim migration notu
-`supabase/migrations/001_productization.sql` dosyası repoya eklendi. Supabase SQL Editor’de bir kez çalıştırılmalı; ardından yeni kullanıcılar otomatik olarak `profiles` kaydı alır. Admin hesabına `profiles.role = 'admin'` verilmelidir.
+`supabase/migrations/001_productization.sql` ve `002_youtube_verification.sql` dosyaları repoya eklendi. Supabase SQL Editor’de sırasıyla bir kez çalıştırılmalı; ardından yeni kullanıcılar otomatik olarak `profiles` kaydı alır. Admin hesabına `profiles.role = 'admin'` verilmelidir. Edge Function’lar `supabase functions deploy heartbeat` ve `supabase functions deploy youtube-verify` komutlarıyla yayınlanmalıdır. Google Cloud Console’da YouTube Data API v3 etkinleştirilmeli, OAuth Web client ID için uygulamanın yerel ve üretim redirect URL’leri tanımlanmalı ve `VITE_GOOGLE_CLIENT_ID` ayarlanmalıdır. Admin yeni görev oluştururken YouTube kanal ID’sini de girmelidir.
 
 ## Güvenlik notu
 

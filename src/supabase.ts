@@ -9,7 +9,7 @@ export type DbTask = { id: number; title: string; creator: string; description: 
 
 export async function loadTasks() {
   if (!supabase) return { data: null, error: new Error('Supabase yapılandırılmamış') };
-  return supabase.from('tasks').select('id,title,creator,description,video_id,points,duration_seconds,audience,color').eq('is_active', true).order('id');
+  return supabase.from('tasks').select('id,title,creator,description,video_id,youtube_channel_id,points,duration_seconds,audience,color').eq('is_active', true).order('id');
 }
 
 export async function createSubmission(input: { taskId: number; watchedSeconds: number; liked: boolean; subscribed: boolean }) {
@@ -31,13 +31,13 @@ export async function uploadEvidence(submissionId: string, file: File) {
   return evidence;
 }
 
-export async function createTask(input: { title: string; creator: string; description: string; videoId: string; points: number; duration: number; audience: string; color: string }) {
+export async function createTask(input: { title: string; creator: string; description: string; videoId: string; youtubeChannelId: string; points: number; duration: number; audience: string; color: string }) {
   if (!supabase) return { data: null, error: new Error('Supabase yapılandırılmamış') };
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return { data: null, error: new Error('Oturum gerekli') };
   const admin = await supabase.rpc('is_admin');
   if (admin.error || !admin.data) return { data: null, error: new Error('Admin yetkisi gerekli') };
-  return supabase.from('tasks').insert({ title: input.title, creator: input.creator, description: input.description, video_id: input.videoId, points: input.points, duration_seconds: input.duration, audience: input.audience, color: input.color }).select().single();
+  return supabase.from('tasks').insert({ title: input.title, creator: input.creator, description: input.description, video_id: input.videoId, youtube_channel_id: input.youtubeChannelId, points: input.points, duration_seconds: input.duration, audience: input.audience, color: input.color }).select().single();
 }
 
 export async function createCampaign(input: { name: string; videoUrl: string; targetParticipants: number; pointsPerTask: number }) {
@@ -50,4 +50,26 @@ export async function createCampaign(input: { name: string; videoUrl: string; ta
 export async function approveSubmission(submissionId: string) {
   if (!supabase) return { error: new Error('Supabase yapılandırılmamış') };
   return supabase.rpc('approve_submission', { p_submission_id: submissionId });
+}
+
+async function invokeHeartbeat(body: Record<string, unknown>) {
+  if (!supabase) return { data: null, error: new Error('Supabase yapılandırılmamış') };
+  return supabase.functions.invoke('heartbeat', { body });
+}
+
+export function startHeartbeat(taskId: number) {
+  return invokeHeartbeat({ action: 'start', taskId });
+}
+
+export function sendHeartbeat(nonce: string, seconds: number) {
+  return invokeHeartbeat({ action: 'beat', nonce, seconds });
+}
+
+export function verifySecretCode(submissionId: string, code: string) {
+  return invokeHeartbeat({ action: 'verify-code', submissionId, code });
+}
+
+export async function verifyYouTubeProof(input: { submissionId: string; videoId: string; channelId: string; accessToken: string }) {
+  if (!supabase) return { data: null, error: new Error('Supabase yapılandırılmamış') };
+  return supabase.functions.invoke('youtube-verify', { body: input });
 }
