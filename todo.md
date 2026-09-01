@@ -16,21 +16,25 @@
 - [x] GitHub commitleri gönderildi:
   - `fc1c262` — Build TikTok-style organic task flow prototype
   - `b801fda` — Add admin wallet and advertiser panels
+  - `224778d` — Add Supabase productization foundation
 
 ## Sonraki aşama — gerçek ürünleştirme
 
-- [ ] Gerçek kullanıcı/admin kimlik doğrulamasını backend session ve hash’li parola ile bağla.
-- [ ] Admin rolü ve yetki kontrolü ekle; frontend-only login üretim güvenliği için yeterli değildir.
-- [ ] Ekran görüntüsü yükleme/storage akışını ekle.
-- [ ] Kanıt kayıtlarını veritabanına bağla.
-- [ ] Admin onayında cüzdan ledger kaydını atomik olarak oluştur.
-- [ ] Reklamveren kampanyalarını veritabanına ve bütçe rezervasyonuna bağla.
-- [ ] YouTube OAuth/API kanıtlarını görev submission akışına bağla.
-- [ ] Gerçek heartbeat ve tek kullanımlık Secret Code endpoint’i ekle.
+- [x] Gerçek kullanıcı kimlik doğrulamasını Supabase Auth session akışıyla bağla.
+- [x] Admin rolü ve yetki kontrolü için `profiles.role`, `is_admin()` ve RLS altyapısını ekle.
+- [x] Ekran görüntüsü yükleme/storage istemci akışını ve private bucket RLS politikasını ekle.
+- [x] Kanıt kayıtları için `submissions` ve `evidence` tablolarını ve istemci yardımcılarını ekle.
+- [x] Admin onayında ledger ve profil bakiyesini atomik güncelleyen `approve_submission()` RPC’sini ekle.
+- [x] Reklamveren kampanyaları ve bütçe rezervasyonu için tablo/RLS/istemci yardımcılarını ekle.
+- [ ] YouTube OAuth/API kanıtlarını görev submission akışına bağla; OAuth kimlik bilgileri ve doğrulama endpoint’i gerekiyor.
+- [ ] Gerçek heartbeat ve tek kullanımlık Secret Code endpoint’i ekle; Edge Function veya server endpoint’i gerekiyor.
+
+## Üretim migration notu
+`supabase/migrations/001_productization.sql` dosyası repoya eklendi. Supabase SQL Editor’de bir kez çalıştırılmalı; ardından yeni kullanıcılar otomatik olarak `profiles` kaydı alır. Admin hesabına `profiles.role = 'admin'` verilmelidir.
 
 ## Güvenlik notu
 
-Admin parolası source code, `todo.md` veya GitHub’a yazılmamalıdır. Static prototipte giriş alanı `VITE_ADMIN_EMAIL` ve `VITE_ADMIN_PASSWORD` environment değişkenlerini kullanır; gerçek production kullanımı için backend doğrulaması zorunludur.
+Admin parolası source code, `todo.md` veya GitHub’a yazılmamalıdır. Kullanıcı parolaları Supabase Auth tarafından yönetilir; admin yetkisi `profiles.role` ve RLS/RPC politikalarıyla kontrol edilir.
 
 ## Supabase Auth entegrasyonu
 
@@ -42,4 +46,4 @@ Admin parolası source code, `todo.md` veya GitHub’a yazılmamalıdır. Static
 - [x] Supabase URL ve publishable key yalnız environment değişkenleri üzerinden okunuyor.
 - [ ] Supabase Dashboard’da Email provider’ı etkinleştir.
 - [ ] Supabase’de admin hesabını oluştur ve `VITE_ADMIN_EMAIL` değerini ayarla.
-- [ ] Üretim için `profiles.role` + RLS ile server-side admin rol kontrolü ekle.
+- [x] Üretim için `profiles.role` + RLS ile server-side admin rol kontrolü migration’a eklendi.
