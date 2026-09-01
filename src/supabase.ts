@@ -54,7 +54,22 @@ export async function approveSubmission(submissionId: string) {
 
 async function invokeHeartbeat(body: Record<string, unknown>) {
   if (!supabase) return { data: null, error: new Error('Supabase yapılandırılmamış') };
-  return supabase.functions.invoke('heartbeat', { body });
+  const result = await supabase.functions.invoke('heartbeat', { body });
+  if (!result.error) return result;
+
+  // Supabase Functions errors often expose only "non-2xx" in Error.message.
+  // Read the JSON response so the user sees the actual RPC/function failure.
+  const context = (result.error as { context?: Response }).context;
+  if (context && typeof context.clone === 'function') {
+    try {
+      const payload = await context.clone().json() as { error?: string; message?: string };
+      const detail = payload.error || payload.message;
+      if (detail) return { ...result, error: new Error(detail) };
+    } catch {
+      // Keep the original Supabase error when the response is not JSON.
+    }
+  }
+  return result;
 }
 
 export function startHeartbeat(taskId: number) {

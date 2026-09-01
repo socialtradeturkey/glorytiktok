@@ -13,8 +13,9 @@ Deno.serve(async (request) => {
   try {
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) return json({ error: 'Oturum gerekli' }, 401);
-    const url = Deno.env.get('SUPABASE_URL')!;
-    const anon = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const url = Deno.env.get('SUPABASE_URL');
+    const anon = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
+    if (!url || !anon) return json({ error: 'Supabase ortam değişkenleri eksik' }, 500);
     const client = createClient(url, anon, { global: { headers: { Authorization: authHeader } } });
     const { data: userData, error: userError } = await client.auth.getUser();
     if (userError || !userData.user) return json({ error: 'Oturum gerekli' }, 401);
@@ -23,13 +24,17 @@ Deno.serve(async (request) => {
     if (body.action === 'start') {
       const { data, error } = await client.rpc('issue_heartbeat', { p_task_id: body.taskId });
       if (error) return json({ error: error.message }, 400);
-      const challenge = data?.[0];
+      const challenge = Array.isArray(data) ? data[0] : data;
       if (!challenge) return json({ error: 'Heartbeat başlatılamadı' }, 500);
       const secretCode = String(Math.floor(100000 + Math.random() * 900000));
-      const service = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
-      const { error: updateError } = await service.from('submissions').update({ secret_code_hash: await sha256(secretCode) }).eq('id', challenge.submission_id).eq('user_id', userData.user.id);
+      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+      if (!serviceRoleKey) return json({ error: 'Supabase servis anahtarı eksik' }, 500);
+      const service = createClient(url, serviceRoleKey);
+      const submissionId = challenge.submission_id ?? challenge.submissionId;
+      if (!submissionId || !challenge.nonce) return json({ error: 'Heartbeat yanıtı eksik alan içeriyor' }, 500);
+      const { error: updateError } = await service.from('submissions').update({ secret_code_hash: await sha256(secretCode) }).eq('id', submissionId).eq('user_id', userData.user.id);
       if (updateError) return json({ error: updateError.message }, 500);
-      return json({ submissionId: challenge.submission_id, nonce: challenge.nonce, expiresAt: challenge.expires_at, durationSeconds: challenge.duration_seconds, secretCode });
+      return json({ submissionId, nonce: challenge.nonce, expiresAt: challenge.expires_at ?? challenge.expiresAt, durationSeconds: challenge.duration_seconds ?? challenge.durationSeconds, secretCode });
     }
 
     if (body.action === 'beat') {
