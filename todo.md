@@ -50,3 +50,5 @@ Admin parolası source code, `todo.md` veya GitHub’a yazılmamalıdır. Kullan
 - [x] Supabase Dashboard’da Email provider’ı etkinleştir.
 - [ ] Supabase Auth’ta `murathand08@gmail.com` hesabını oluştur/varsa parolasını güncelle ve `VITE_ADMIN_EMAIL=murathand08@gmail.com` değerini ayarla.
 - [x] Üretim için `profiles.role` + RLS ile server-side admin rol kontrolü migration’a eklendi.
+
+- [x] Existing Auth admin identity profiled with `004_admin_profile.sql`; `murathand08@gmail.com` now has `profiles.role = admin`.
