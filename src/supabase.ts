@@ -5,11 +5,11 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string 
 
 export const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
-export type DbTask = { id: number; title: string; creator: string; description: string; video_id: string; points: number; duration_seconds: number; audience: string; color: string };
+export type DbTask = { id: number; title: string; creator: string; description: string; video_id: string; youtube_channel_id?: string; campaign_name: string; platform: string; action_type: string; target_url?: string; verification_method: string; fallback_method: string; points: number; total_quota: number; user_limit: number; estimated_duration_seconds: number; youtube_min_watch_seconds: number; secret_code_display_seconds: number; random_code_start_seconds: number; random_code_end_seconds: number; session_duration_seconds: number; daily_task_limit: number; starts_at?: string; ends_at?: string; audience: string; color: string };
 
 export async function loadTasks() {
   if (!supabase) return { data: null, error: new Error('Supabase yapılandırılmamış') };
-  return supabase.from('tasks').select('id,title,creator,description,video_id,youtube_channel_id,points,duration_seconds,audience,color').eq('is_active', true).order('id');
+  return supabase.from('tasks').select('id,title,creator,description,video_id,youtube_channel_id,campaign_name,platform,action_type,target_url,verification_method,fallback_method,points,total_quota,user_limit,estimated_duration_seconds,youtube_min_watch_seconds,secret_code_display_seconds,random_code_start_seconds,random_code_end_seconds,session_duration_seconds,daily_task_limit,starts_at,ends_at,audience,color').eq('is_active', true).order('id');
 }
 
 export async function createSubmission(input: { taskId: number; watchedSeconds: number; liked: boolean; subscribed: boolean }) {
@@ -31,13 +31,13 @@ export async function uploadEvidence(submissionId: string, file: File) {
   return evidence;
 }
 
-export async function createTask(input: { title: string; creator: string; description: string; videoId: string; youtubeChannelId: string; points: number; duration: number; audience: string; color: string }) {
+export async function createTask(input: { title: string; creator: string; description: string; videoId: string; youtubeChannelId: string; campaignName: string; platform: string; actionType: string; targetUrl: string; verificationMethod: string; fallbackMethod: string; points: number; totalQuota: number; userLimit: number; estimatedDuration: number; youtubeMinWatchSeconds: number; secretCodeDisplaySeconds: number; randomCodeStartSeconds: number; randomCodeEndSeconds: number; sessionDurationSeconds: number; dailyTaskLimit: number; startsAt: string; endsAt: string; eligibilityRules: string; audience: string; color: string }) {
   if (!supabase) return { data: null, error: new Error('Supabase yapılandırılmamış') };
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return { data: null, error: new Error('Oturum gerekli') };
   const admin = await supabase.rpc('is_admin');
   if (admin.error || !admin.data) return { data: null, error: new Error('Admin yetkisi gerekli') };
-  return supabase.from('tasks').insert({ title: input.title, creator: input.creator, description: input.description, video_id: input.videoId, youtube_channel_id: input.youtubeChannelId, points: input.points, duration_seconds: input.duration, audience: input.audience, color: input.color }).select().single();
+  return supabase.from('tasks').insert({ title: input.title, creator: input.creator, description: input.description, video_id: input.videoId, youtube_channel_id: input.youtubeChannelId || null, campaign_name: input.campaignName, platform: input.platform, action_type: input.actionType, target_url: input.targetUrl || null, verification_method: input.verificationMethod, fallback_method: input.fallbackMethod, points: input.points, total_quota: input.totalQuota, user_limit: input.userLimit, estimated_duration_seconds: input.estimatedDuration, duration_seconds: input.youtubeMinWatchSeconds, youtube_min_watch_seconds: input.youtubeMinWatchSeconds, secret_code_display_seconds: input.secretCodeDisplaySeconds, random_code_start_seconds: input.randomCodeStartSeconds, random_code_end_seconds: input.randomCodeEndSeconds, session_duration_seconds: input.sessionDurationSeconds, daily_task_limit: input.dailyTaskLimit, starts_at: input.startsAt || null, ends_at: input.endsAt || null, eligibility_rules: input.eligibilityRules ? JSON.parse(input.eligibilityRules) : {}, audience: input.audience, color: input.color }).select().single();
 }
 
 export async function createCampaign(input: { name: string; videoUrl: string; targetParticipants: number; pointsPerTask: number }) {

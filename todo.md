@@ -12,7 +12,7 @@
 - [x] Reklamveren paneli oluşturuldu: kampanya listesi, bütçe, katılım ilerlemesi ve yeni kampanya taslağı.
 - [x] Admin paneline environment değişkenleri üzerinden giriş formu eklendi; parola kaynak koda veya bu dosyaya yazılmadı.
 - [x] Kullanıcı kayıt/giriş ekranı ve Supabase oturumundan güvenli çıkış düğmesi eklendi.
-- [x] Admin paneline görev oluşturma formu eklendi: başlık, kanal, video ID, hedef kitle, puan ve izleme süresi.
+- [x] Admin paneline görev oluşturma formu eklendi: görseldeki temel bilgiler, platform/eylem, doğrulama, ödül-kapasite, zamanlama ve uygunluk alanları.
 - [x] `pnpm build` başarılı şekilde çalıştırıldı.
 - [x] Yerel smoke test başarılı.
 - [x] GitHub commitleri gönderildi:
@@ -33,7 +33,7 @@
 - [x] Gerçek heartbeat ve tek kullanımlık Secret Code endpoint’i ekle; `heartbeat` Edge Function nonce, süre ve tek kullanımlık kod doğrulamasını yönetiyor.
 
 ## Üretim migration notu
-`supabase/migrations/001_productization.sql` ve `002_youtube_verification.sql` dosyaları repoya eklendi. Supabase SQL Editor’de sırasıyla bir kez çalıştırılmalı; ardından yeni kullanıcılar otomatik olarak `profiles` kaydı alır. Admin hesabına `profiles.role = 'admin'` verilmelidir. Edge Function’lar `supabase functions deploy heartbeat` ve `supabase functions deploy youtube-verify` komutlarıyla yayınlanmalıdır. Google Cloud Console’da YouTube Data API v3 etkinleştirilmeli, OAuth Web client ID için uygulamanın yerel ve üretim redirect URL’leri tanımlanmalı ve `VITE_GOOGLE_CLIENT_ID` ayarlanmalıdır. Admin yeni görev oluştururken YouTube kanal ID’sini de girmelidir.
+`supabase/migrations/001_productization.sql`, `002_youtube_verification.sql` ve `003_task_details.sql` dosyaları repoya eklendi. Supabase SQL Editor’de sırasıyla bir kez çalıştırılmalı; ardından yeni kullanıcılar otomatik olarak `profiles` kaydı alır. `murathand08@gmail.com` adresi migration ile admin rolüne alınır; yeni kayıt oluşturulursa trigger da aynı rolü verir. Edge Function’lar `supabase functions deploy heartbeat` ve `supabase functions deploy youtube-verify` komutlarıyla yayınlanmalıdır. Google Cloud Console’da YouTube Data API v3 etkinleştirilmeli, OAuth Web client ID için uygulamanın yerel ve üretim redirect URL’leri tanımlanmalı ve `VITE_GOOGLE_CLIENT_ID` ayarlanmalıdır. Admin yeni görev oluştururken YouTube kanal ID’sini de girmelidir.
 
 ## Güvenlik notu
 
@@ -48,5 +48,5 @@ Admin parolası source code, `todo.md` veya GitHub’a yazılmamalıdır. Kullan
 - [x] Admin paneli yetkili `VITE_ADMIN_EMAIL` ile Supabase oturumunu kontrol edecek şekilde bağlandı.
 - [x] Supabase URL ve publishable key yalnız environment değişkenleri üzerinden okunuyor.
 - [x] Supabase Dashboard’da Email provider’ı etkinleştir.
-- [ ] Supabase’de admin hesabını oluştur ve `VITE_ADMIN_EMAIL` değerini ayarla.
+- [ ] Supabase Auth’ta `murathand08@gmail.com` hesabını oluştur/varsa parolasını güncelle ve `VITE_ADMIN_EMAIL=murathand08@gmail.com` değerini ayarla.
 - [x] Üretim için `profiles.role` + RLS ile server-side admin rol kontrolü migration’a eklendi.
