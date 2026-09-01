@@ -33,7 +33,7 @@
 - [x] Gerçek heartbeat ve tek kullanımlık Secret Code endpoint’i ekle; `heartbeat` Edge Function nonce, süre ve tek kullanımlık kod doğrulamasını yönetiyor.
 
 ## Üretim migration notu
-`supabase/migrations/001_productization.sql`, `002_youtube_verification.sql` ve `003_task_details.sql` dosyaları repoya eklendi. Supabase SQL Editor’de sırasıyla bir kez çalıştırılmalı; ardından yeni kullanıcılar otomatik olarak `profiles` kaydı alır. `murathand08@gmail.com` adresi migration ile admin rolüne alınır; yeni kayıt oluşturulursa trigger da aynı rolü verir. Edge Function’lar `supabase functions deploy heartbeat` ve `supabase functions deploy youtube-verify` komutlarıyla yayınlanmalıdır. Google Cloud Console’da YouTube Data API v3 etkinleştirilmeli, OAuth Web client ID için uygulamanın yerel ve üretim redirect URL’leri tanımlanmalı ve `VITE_GOOGLE_CLIENT_ID` ayarlanmalıdır. Admin yeni görev oluştururken YouTube kanal ID’sini de girmelidir.
+`supabase/migrations/001_productization.sql`, `002_youtube_verification.sql`, `003_task_details.sql`, `004_admin_profile.sql` ve `005_harden_rpc_execute.sql` dosyaları repoya eklendi ve production Supabase projesine uygulandı. `murathand08@gmail.com` mevcut Auth kullanıcısı olarak doğrulandı ve `profiles.role = admin` yapıldı. `heartbeat` ve `youtube-verify` Edge Function’ları production’da ACTIVE ve JWT doğrulamalı olarak yayınlandı. Google Cloud Console’da YouTube Data API v3 etkinleştirilmeli, OAuth Web client ID için uygulamanın yerel ve üretim redirect URL’leri tanımlanmalı ve `VITE_GOOGLE_CLIENT_ID` Vercel’e eklenmelidir. Admin yeni görev oluştururken YouTube kanal ID’sini de girmelidir.
 
 ## Güvenlik notu
 
@@ -48,7 +48,8 @@ Admin parolası source code, `todo.md` veya GitHub’a yazılmamalıdır. Kullan
 - [x] Admin paneli yetkili `VITE_ADMIN_EMAIL` ile Supabase oturumunu kontrol edecek şekilde bağlandı.
 - [x] Supabase URL ve publishable key yalnız environment değişkenleri üzerinden okunuyor.
 - [x] Supabase Dashboard’da Email provider’ı etkinleştir.
-- [ ] Supabase Auth’ta `murathand08@gmail.com` hesabını oluştur/varsa parolasını güncelle ve `VITE_ADMIN_EMAIL=murathand08@gmail.com` değerini ayarla.
+- [x] Supabase Auth’ta `murathand08@gmail.com` hesabı mevcut olarak doğrulandı; profil admin rolüne alındı ve Vercel’de `VITE_ADMIN_EMAIL=murathand08@gmail.com` mevcut.
 - [x] Üretim için `profiles.role` + RLS ile server-side admin rol kontrolü migration’a eklendi.
 
 - [x] Existing Auth admin identity profiled with `004_admin_profile.sql`; `murathand08@gmail.com` now has `profiles.role = admin`.
+- [x] `005_harden_rpc_execute.sql` ile anonim RPC execute izinleri kaldırıldı; gerekli RPC’ler yalnızca authenticated/service_role rollerine bırakıldı.
