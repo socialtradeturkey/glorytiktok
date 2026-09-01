@@ -28,6 +28,7 @@
 - [x] Kanıt kayıtları için `submissions` ve `evidence` tablolarını ve istemci yardımcılarını ekle.
 - [x] Admin onayında ledger ve profil bakiyesini atomik güncelleyen `approve_submission()` RPC’sini ekle.
 - [x] Reklamveren kampanyaları ve bütçe rezervasyonu için tablo/RLS/istemci yardımcılarını ekle.
+- [x] Reklamveren kampanya formunu doğrulama ve bütçe hesabıyla Supabase insert akışına bağla.
 - [ ] YouTube OAuth/API kanıtlarını görev submission akışına bağla; OAuth kimlik bilgileri ve doğrulama endpoint’i gerekiyor.
 - [ ] Gerçek heartbeat ve tek kullanımlık Secret Code endpoint’i ekle; Edge Function veya server endpoint’i gerekiyor.
 
@@ -46,6 +47,6 @@ Admin parolası source code, `todo.md` veya GitHub’a yazılmamalıdır. Kullan
 - [x] Supabase session dinleme ve oturum yoksa auth ekranı gösterme eklendi.
 - [x] Admin paneli yetkili `VITE_ADMIN_EMAIL` ile Supabase oturumunu kontrol edecek şekilde bağlandı.
 - [x] Supabase URL ve publishable key yalnız environment değişkenleri üzerinden okunuyor.
-- [ ] Supabase Dashboard’da Email provider’ı etkinleştir.
+- [x] Supabase Dashboard’da Email provider’ı etkinleştir.
 - [ ] Supabase’de admin hesabını oluştur ve `VITE_ADMIN_EMAIL` değerini ayarla.
 - [x] Üretim için `profiles.role` + RLS ile server-side admin rol kontrolü migration’a eklendi.
