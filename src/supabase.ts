@@ -31,6 +31,15 @@ export async function uploadEvidence(submissionId: string, file: File) {
   return evidence;
 }
 
+export async function createTask(input: { title: string; creator: string; description: string; videoId: string; points: number; duration: number; audience: string; color: string }) {
+  if (!supabase) return { data: null, error: new Error('Supabase yapılandırılmamış') };
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { data: null, error: new Error('Oturum gerekli') };
+  const admin = await supabase.rpc('is_admin');
+  if (admin.error || !admin.data) return { data: null, error: new Error('Admin yetkisi gerekli') };
+  return supabase.from('tasks').insert({ title: input.title, creator: input.creator, description: input.description, video_id: input.videoId, points: input.points, duration_seconds: input.duration, audience: input.audience, color: input.color }).select().single();
+}
+
 export async function createCampaign(input: { name: string; videoUrl: string; targetParticipants: number; pointsPerTask: number }) {
   if (!supabase) return { data: null, error: new Error('Supabase yapılandırılmamış') };
   const { data: auth } = await supabase.auth.getUser();

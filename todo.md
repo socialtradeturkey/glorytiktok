@@ -11,6 +11,8 @@
 - [x] Kullanıcı cüzdan/profil görünümü oluşturuldu: bakiye, toplam kazanım, görev geçmişi ve onay oranı.
 - [x] Reklamveren paneli oluşturuldu: kampanya listesi, bütçe, katılım ilerlemesi ve yeni kampanya taslağı.
 - [x] Admin paneline environment değişkenleri üzerinden giriş formu eklendi; parola kaynak koda veya bu dosyaya yazılmadı.
+- [x] Kullanıcı kayıt/giriş ekranı ve Supabase oturumundan güvenli çıkış düğmesi eklendi.
+- [x] Admin paneline görev oluşturma formu eklendi: başlık, kanal, video ID, hedef kitle, puan ve izleme süresi.
 - [x] `pnpm build` başarılı şekilde çalıştırıldı.
 - [x] Yerel smoke test başarılı.
 - [x] GitHub commitleri gönderildi:
